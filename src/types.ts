@@ -29,6 +29,8 @@ export interface Clinic {
   dashboard_token: string | null;
   /** Cuándo se envió el último reporte semanal (planes Growth/Scale). */
   ultimo_reporte: string | null;
+  /** Valor promedio de una cita en COP (para el ROI del dashboard, Growth/Scale). */
+  valor_cita_promedio: number;
   activo: boolean;
 }
 

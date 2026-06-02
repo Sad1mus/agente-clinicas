@@ -22,6 +22,7 @@ create table if not exists clinics (
   plan            text not null default 'basic' check (plan in ('basic','growth','scale')),
   dashboard_token text unique,                      -- llave de acceso al panel de clientas (/d/<token>)
   ultimo_reporte  timestamptz,                      -- último reporte semanal enviado (Growth/Scale)
+  valor_cita_promedio numeric not null default 0,   -- COP, para el ROI del dashboard (Growth/Scale)
   activo          boolean not null default true,
   created_at      timestamptz not null default now()
 );

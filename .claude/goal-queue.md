@@ -1,7 +1,7 @@
 # Goal Queue — Funciones premium (Growth/Scale) del agente de clínicas
 
 estado: activa
-current: 2
+current: 3
 turn_cap_por_item: 15
 
 <!--
@@ -46,7 +46,7 @@ query a Supabase que muestra `plan='scale'` · `git log --oneline -1` mostrando 
 **No tocar:** el flujo actual de mensajes (dispatcher/brain) ni los recordatorios anti no-show.
 **Evidencia:** typecheck exit 0 · `scripts/test_reporte.ts` imprimió reporte real (1 cita, 3 clientes, 11 mensajes, 1 escalamiento, comparativas 📈) y gating "SÍ ✅" con plan scale · Supabase: plan='scale' · src/plans.ts + src/reports.ts creados, scheduler lunes 8am en index.ts.
 
-## [pending] 2. ROI visible en el dashboard
+## [done] 2. ROI visible en el dashboard
 **Condición:** Migración: columna `clinics.valor_cita_promedio` (numeric, COP; seed: 80000 para
 la clínica de prueba). El endpoint `/api/<token>` devuelve `kpis.roi_estimado_mes` = (citas
 agendadas+confirmadas con created_at en el mes actual) × valor_cita_promedio. El HTML del panel
@@ -56,7 +56,7 @@ colombiano), SOLO si `planIncluye(clinic,'roi_dashboard')`; para plan basic el b
 muestra un número > 0 · el mismo curl con la clínica temporalmente en 'basic' NO incluye el campo
 (y se restaura a 'scale' después, mostrando ambas salidas) · `git log --oneline -1` pusheado.
 **No tocar:** los KPIs existentes del dashboard ni el diseño general (solo agregar el banner).
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · API con plan scale: roi_estimado_mes=80000 (1 cita × $80.000) · API con plan basic: campo ausente (tiene_roi=false) · restaurado a scale · banner gradiente verde en html.ts · columna valor_cita_promedio migrada y en schema/seed.
 
 ## [pending] 3. Pedido de reseñas de Google post-cita
 **Condición:** Migración: `clinics.google_review_url` (text; seed: un link de ejemplo en la clínica

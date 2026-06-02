@@ -34,6 +34,10 @@ export function dashboardPage(token: string): string {
   .kpi .lbl { font-size: 0.75rem; color: var(--gris); margin-top: 2px; }
   .kpi.alerta .num { color: var(--rojo); }
 
+  .roi { background: linear-gradient(135deg, var(--verde) 0%, #0a8c7a 100%); color: #fff; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(7,94,84,0.3); display: none; }
+  .roi .roi-num { font-size: 1.7rem; font-weight: 800; }
+  .roi .roi-lbl { font-size: 0.8rem; opacity: 0.9; margin-top: 2px; }
+
   section { background: var(--blanco); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
   section h2 { font-size: 0.95rem; margin-bottom: 12px; color: var(--verde); display: flex; align-items: center; gap: 6px; }
 
@@ -65,6 +69,11 @@ export function dashboardPage(token: string): string {
   <div class="sub"><span class="punto-vivo"></span> Asistente activo 24/7 · <span class="badge-plan" id="plan"></span></div>
 </header>
 <main>
+  <div class="roi" id="roi">
+    <div class="roi-num" id="roi-num"></div>
+    <div class="roi-lbl">💰 generados este mes por tu asistente (citas × valor promedio)</div>
+  </div>
+
   <div class="kpis" id="kpis"></div>
 
   <section>
@@ -107,6 +116,17 @@ async function cargar() {
   document.title = 'Panel · ' + d.clinica.nombre;
 
   const k = d.kpis;
+
+  // Banner de ROI: solo llega en la respuesta si el plan de la clínica lo incluye.
+  const roiBox = document.getElementById('roi');
+  if (typeof k.roi_estimado_mes === 'number') {
+    document.getElementById('roi-num').textContent =
+      '~$' + k.roi_estimado_mes.toLocaleString('es-CO') + ' COP';
+    roiBox.style.display = 'block';
+  } else {
+    roiBox.style.display = 'none';
+  }
+
   document.getElementById('kpis').innerHTML =
     kpi(k.citas_hoy, 'Citas hoy') +
     kpi(k.citas_proximas, 'Citas próximas') +

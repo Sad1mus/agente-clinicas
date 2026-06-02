@@ -30,4 +30,7 @@ values (
 -- Genera el token del panel de clientas (dashboard) para las clínicas que no lo tengan.
 update clinics set dashboard_token = encode(gen_random_bytes(16), 'hex') where dashboard_token is null;
 
+-- Valor promedio de cita (COP) para el cálculo de ROI del dashboard (planes Growth/Scale).
+update clinics set valor_cita_promedio = 80000 where session_id = 'vet-san-martin';
+
 -- dias: 1=lunes ... 7=domingo. almuerzo: rango bloqueado [desde, hasta].

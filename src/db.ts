@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from './config.js';
 import type { Appointment, Clinic, HistoryMessage } from './types.js';
+import { planIncluye } from './plans.js';
 
 export const supabase = createClient(config.supabaseUrl, config.supabaseServiceKey, {
   auth: { persistSession: false },
@@ -208,6 +209,19 @@ export async function getDashboardData(clinic: Clinic) {
     .neq('estado', 'cancelada')
     .gte('created_at', hace7dias);
 
+  // ROI estimado del mes (solo planes que lo incluyen): citas activas del mes × valor promedio.
+  let roi: { roi_estimado_mes: number } | Record<string, never> = {};
+  if (planIncluye(clinic, 'roi_dashboard')) {
+    const inicioMes = `${hoy.slice(0, 7)}-01T00:00:00`;
+    const citasMes = await supabase
+      .from('appointments')
+      .select('id', { count: 'exact', head: true })
+      .eq('clinic_id', clinic.id)
+      .neq('estado', 'cancelada')
+      .gte('created_at', inicioMes);
+    roi = { roi_estimado_mes: (citasMes.count ?? 0) * (clinic.valor_cita_promedio ?? 0) };
+  }
+
   return {
     clinica: {
       nombre: clinic.nombre,
@@ -223,6 +237,7 @@ export async function getDashboardData(clinic: Clinic) {
       mensajes_hoy: mensajesHoy.count ?? 0,
       leads_capturados: (leads.data ?? []).length,
       escalamientos: (leads.data ?? []).filter((l) => l.escalado).length,
+      ...roi,
     },
     citas: citas.data ?? [],
     contactos: contactos.data ?? [],
