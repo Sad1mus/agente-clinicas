@@ -1,7 +1,7 @@
 # Goal Queue — Funciones premium (Growth/Scale) del agente de clínicas
 
 estado: activa
-current: 4
+current: 5
 turn_cap_por_item: 15
 
 <!--
@@ -71,7 +71,7 @@ borra al final · `git log --oneline -1` pusheado.
 **No tocar:** recordatorios anti no-show ni el flujo de agendamiento.
 **Evidencia:** typecheck exit 0 · test_resenas.ts ✅ PASA: cita simulada de ayer → mensaje generado con nombre+mascota+link de Google → resena_pedida marcada → cita borrada (0 filas) · fix de TZ: ventana 2-26h calculada con offset de config.tz (patrón de reminders.ts) · scheduler horario en index.ts.
 
-## [pending] 4. Recordatorios de vacunas/ciclos (veterinarias)
+## [done] 4. Recordatorios de vacunas/ciclos (veterinarias)
 **Condición:** Migración: tabla `ciclos` (id, clinic_id, jid, mascota, tipo
 ['vacuna','desparasitacion','control'], descripcion, fecha_proxima date, enviado timestamptz null,
 created_at). Nueva tool `programar_refuerzo` en tools.ts: cuando el bot agenda una vacunación/
@@ -84,7 +84,7 @@ fecha_proxima hoy → correr la revisión → mensaje generado impreso y ciclo m
 programar_refuerzo (grep visible) · `git log --oneline -1` pusheado.
 **No tocar:** las 5 tools existentes (consultar_disponibilidad, agendar_cita, actualizar_cita,
 guardar_lead, escalar_humano) siguen funcionando igual.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · tabla ciclos en Supabase (information_schema) · test_ciclos.ts ✅ PASA: ciclo de vacuna hoy → mensaje con mascota+descripción → enviado marcado → limpiado · tool programar_refuerzo en tools.ts:92/262 + prompts.ts:43 · scheduler 12h en index.ts.
 
 ## [pending] 5. Rescate de llamadas perdidas (plan Scale)
 **Condición:** En `src/whatsapp.ts`, listener del evento 'call' de Baileys: cuando una llamada

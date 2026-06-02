@@ -4,6 +4,7 @@ import { startDashboard } from './dashboard/server.js';
 import { startReminders } from './reminders.js';
 import { startWeeklyReports } from './reports.js';
 import { startReviews } from './reviews.js';
+import { startCycles } from './cycles.js';
 import { config } from './config.js';
 
 async function main() {
@@ -38,6 +39,9 @@ async function main() {
 
   // Pedido de reseñas de Google post-cita (planes Growth/Scale).
   startReviews(clinics);
+
+  // Recordatorios de vacunas/ciclos (planes Growth/Scale).
+  startCycles(clinics);
 
   console.log('Listo. Esperando mensajes… (Ctrl+C para salir)');
 }

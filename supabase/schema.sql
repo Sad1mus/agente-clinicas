@@ -68,6 +68,20 @@ create table if not exists appointments (
 );
 create index if not exists idx_appointments_dia on appointments (clinic_id, fecha, estado);
 
+-- Ciclos de salud (refuerzos de vacuna, desparasitación) — Growth/Scale --
+create table if not exists ciclos (
+  id            uuid primary key default gen_random_uuid(),
+  clinic_id     uuid not null references clinics(id) on delete cascade,
+  jid           text not null,                       -- contacto de WhatsApp a recordar
+  mascota       text,
+  tipo          text not null check (tipo in ('vacuna','desparasitacion','control')),
+  descripcion   text,                                -- ej: "refuerzo anual de rabia"
+  fecha_proxima date not null,
+  enviado       timestamptz,                         -- cuándo se envió el aviso (null = pendiente)
+  created_at    timestamptz not null default now()
+);
+create index if not exists idx_ciclos_pendientes on ciclos (clinic_id, fecha_proxima) where enviado is null;
+
 -- Leads + escalamientos a humano ---------------------------------------
 create table if not exists leads (
   id              uuid primary key default gen_random_uuid(),

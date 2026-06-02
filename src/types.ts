@@ -58,3 +58,16 @@ export interface HistoryMessage {
   role: 'user' | 'assistant';
   content: string;
 }
+
+/** Ciclo de salud recurrente (refuerzo de vacuna, desparasitación, control). */
+export interface Ciclo {
+  id: string;
+  clinic_id: string;
+  jid: string;
+  mascota: string | null;
+  tipo: 'vacuna' | 'desparasitacion' | 'control';
+  descripcion: string | null;
+  fecha_proxima: string; // YYYY-MM-DD
+  enviado: string | null;
+  created_at: string;
+}

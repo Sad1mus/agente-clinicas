@@ -7,6 +7,7 @@ import {
   saveLead,
   getUpcomingAppointment,
   setAppointmentStatus,
+  supabase,
 } from './db.js';
 import { notifyHuman } from './notifier.js';
 
@@ -82,6 +83,34 @@ export const TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
           notas: { type: 'string', description: 'Cualquier dato útil para el seguimiento' },
         },
         required: ['interes'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'programar_refuerzo',
+      description:
+        'Programa un recordatorio futuro de ciclo de salud (refuerzo de vacuna, desparasitación o control). Úsala cuando agendes una vacunación/desparasitación y el cliente acepte que le recordemos el refuerzo, o cuando el cliente pida que le recuerden algo en una fecha futura.',
+      parameters: {
+        type: 'object',
+        properties: {
+          tipo: {
+            type: 'string',
+            enum: ['vacuna', 'desparasitacion', 'control'],
+            description: 'Tipo de ciclo a recordar',
+          },
+          fecha_proxima: {
+            type: 'string',
+            description: 'Fecha del próximo refuerzo/control en formato YYYY-MM-DD',
+          },
+          mascota: { type: 'string', description: 'Nombre de la mascota, si aplica' },
+          descripcion: {
+            type: 'string',
+            description: 'Detalle del recordatorio (ej: "refuerzo anual de rabia")',
+          },
+        },
+        required: ['tipo', 'fecha_proxima'],
       },
     },
   },
@@ -228,6 +257,24 @@ export async function runTool(
           notas: input.notas ? String(input.notas) : undefined,
         });
         return JSON.stringify({ ok: true });
+      }
+
+      case 'programar_refuerzo': {
+        const { error } = await supabase.from('ciclos').insert({
+          clinic_id: clinic.id,
+          jid,
+          mascota: input.mascota ? String(input.mascota) : null,
+          tipo: String(input.tipo),
+          descripcion: input.descripcion ? String(input.descripcion) : null,
+          fecha_proxima: String(input.fecha_proxima),
+        });
+        if (error) {
+          return JSON.stringify({ ok: false, error: 'No se pudo programar el recordatorio.' });
+        }
+        return JSON.stringify({
+          ok: true,
+          mensaje: `Recordatorio de ${input.tipo} programado para ${input.fecha_proxima}.`,
+        });
       }
 
       case 'escalar_humano': {
