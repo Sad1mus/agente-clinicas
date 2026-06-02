@@ -108,7 +108,7 @@ export async function startClinicSocket(clinic: Clinic): Promise<void> {
 
       if (esSelfChat || esDuenoExterno) {
         if (esSelfChat && !text.trim().startsWith('/')) continue; // ignora respuestas del bot
-        const respuesta = await handleOwnerCommand(clinic, text.trim());
+        const respuesta = await handleOwnerCommand(clinic, text.trim(), jid);
         if (respuesta) {
           await sock.sendMessage(jid, { text: respuesta });
         } else if (esSelfChat) {

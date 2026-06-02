@@ -1,7 +1,7 @@
 # Goal Queue — Operación autoservicio + verticales dental y estética
 
 estado: activa
-current: 1
+current: 2
 turn_cap_por_item: 15
 
 <!--
@@ -33,7 +33,7 @@ Reglas permanentes del proyecto:
   dashboard_token (eso es solo de la agencia, vía SQL).
 -->
 
-## [pending] 1. Comandos /info y /editar (autoservicio del dueño)
+## [done] 1. Comandos /info y /editar (autoservicio del dueño)
 **Condición:** En `src/owner.ts`: (a) `/info` responde la ficha completa formateada de la clínica
 (nombre, dirección, servicios, horario, FAQs/info_extra, valor de cita, link de reseñas, plan);
 (b) `/editar <cambio en lenguaje natural>` usa OpenRouter (modelo free de config) para convertir el
@@ -49,7 +49,7 @@ a Supabase muestra info_extra actualizado → se revierte; (3) cambio sin confir
 `git log --oneline -1` pusheado.
 **No tocar:** los comandos existentes (/hoy, /semana, /panel, /ayuda) siguen funcionando; el flujo
 de clientes normales no cambia.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · test_editar.ts ✅ 4/4: /info ficha completa · /editar Bitcoin→propuesta→/si→info_extra actualizado en Supabase ("...y Bitcoin")→revertido · sin confirmar no aplica · plan rechazado (⚠️ campo prohibido) · test_owner.ts sigue 6/6 (sin regresión).
 
 ## [pending] 2. Vertical DENTAL completo (clínica de prueba + ciclos + prompt)
 **Condición:** (a) Clínica "Clínica Dental Sonríe" en Supabase: vertical dental, activo=false,
