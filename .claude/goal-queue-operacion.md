@@ -1,7 +1,7 @@
 # Goal Queue — Operación autoservicio + verticales dental y estética
 
 estado: activa
-current: 4
+current: 5
 turn_cap_por_item: 15
 
 <!--
@@ -85,7 +85,7 @@ scripts/test_estetica.ts` exit 0: respuesta visible SIN precio inventado + ofert
 **No tocar:** las otras dos clínicas y sus flujos.
 **Evidencia:** typecheck exit 0 · Estética Belle en Supabase (growth, activo=false, token 08f5bbe5) · test_estetica.ts ✅ 3/3: pregunta de precio de depilación láser → NO inventó cifra, redirigió a valoración con presupuesto exacto → ofreció horarios reales (09:00-18:00, citas de 60min) → limpieza ok · prompt estética con regla dura de precios + ciclos tipo 'sesion'.
 
-## [pending] 4. Onboarding express (formulario + alta en 1 comando)
+## [done] 4. Onboarding express (formulario + alta en 1 comando)
 **Condición:** (a) `docs/ONBOARDING_CLIENTE.md`: el formulario de 10 preguntas para clientes
 nuevos, redactado listo para copiar/pegar por WhatsApp (tono cálido, numerado, con ejemplos de
 respuesta); (b) `scripts/nueva_clinica.ts`: recibe los datos por argumentos o JSON
@@ -96,7 +96,7 @@ panel, el session_id y las instrucciones del QR. La agencia onboardea una clíni
 correr `npx tsx scripts/nueva_clinica.ts --json '...'` con una clínica ficticia → imprime panel/QR
 → query Supabase muestra la fila → se borra al final · `git log --oneline -1` pusheado.
 **No tocar:** el seed.sql existente; las clínicas reales.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · ONBOARDING_CLIENTE.md con exactamente 10 preguntas (grep -c = 10) · nueva_clinica.ts creó "Veterinaria Prueba Onboarding" con defaults del vertical (servicios, $70k, tono) + token + link del panel con URL pública → verificada en Supabase → borrada (quedan las 3 reales).
 
 ## [pending] 5. Controles del dueño (/pausar, /activar, /clientes)
 **Condición:** (a) Migración: columna `clinics.pausado` (boolean default false) + sync schema.sql;
