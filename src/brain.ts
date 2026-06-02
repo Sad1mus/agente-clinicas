@@ -3,7 +3,7 @@ import { config } from './config.js';
 import type { Clinic } from './types.js';
 import { buildSystem } from './prompts.js';
 import { TOOLS, runTool } from './tools.js';
-import { getRecentHistory, saveMessage, upsertContact } from './db.js';
+import { getRecentHistory, saveMessage, upsertContact, estaPausada } from './db.js';
 
 // OpenRouter expone una API compatible con OpenAI.
 const client = new OpenAI({
@@ -26,15 +26,23 @@ function ahoraTexto(): string {
 }
 
 /**
- * Procesa un mensaje (o ráfaga ya combinada) y devuelve la respuesta a enviar.
+ * Procesa un mensaje (o ráfaga ya combinada) y devuelve la respuesta a enviar,
+ * o null si la clínica está pausada (el mensaje se guarda igual, sin responder).
  * Carga historial desde Supabase, corre el loop de tool-use y persiste todo.
  */
 export async function handleMessage(
   clinic: Clinic,
   jid: string,
   userText: string,
-): Promise<string> {
+): Promise<string | null> {
   await upsertContact(clinic.id, jid);
+
+  // Clínica pausada por el dueño (/pausar): guarda el mensaje para no perderlo,
+  // pero no responde. El estado se lee fresco para que aplique sin reiniciar.
+  if (await estaPausada(clinic.id)) {
+    await saveMessage(clinic.id, jid, 'user', userText);
+    return null;
+  }
 
   const history = await getRecentHistory(clinic.id, jid);
   const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [

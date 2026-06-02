@@ -24,6 +24,7 @@ create table if not exists clinics (
   ultimo_reporte  timestamptz,                      -- último reporte semanal enviado (Growth/Scale)
   valor_cita_promedio numeric not null default 0,   -- COP, para el ROI del dashboard (Growth/Scale)
   google_review_url text,                           -- link de Google Reviews (pedido de reseñas, Growth/Scale)
+  pausado         boolean not null default false,   -- pausado por el dueño (/pausar): el bot no responde
   activo          boolean not null default true,
   created_at      timestamptz not null default now()
 );

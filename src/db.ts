@@ -13,6 +13,18 @@ export async function getActiveClinics(): Promise<Clinic[]> {
   return (data ?? []) as Clinic[];
 }
 
+/** ¿La clínica está pausada por el dueño? Lee el estado FRESCO de la DB
+ *  (así la pausa aplica al instante, sin reiniciar el proceso). */
+export async function estaPausada(clinicId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('clinics')
+    .select('pausado')
+    .eq('id', clinicId)
+    .single();
+  if (error) return false; // ante la duda, no bloquear la atención
+  return Boolean(data?.pausado);
+}
+
 /** Carga una clínica por session_id, esté activa o no (para tests y onboarding). */
 export async function getClinicBySessionId(sessionId: string): Promise<Clinic | null> {
   const { data, error } = await supabase

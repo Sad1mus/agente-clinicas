@@ -62,10 +62,31 @@ sin cachear para no invalidar el prefijo.
 5. **Probar:** escribe al número vinculado desde otro teléfono. Pide una cita y observa cómo
    consulta horarios y agenda (revisa la tabla `appointments` en Supabase).
 
-## Cómo añadir una clínica nueva
+## Cómo añadir una clínica nueva (onboarding express)
 
-Inserta una fila en `clinics` con un `session_id` único (ej. `dental-sonrisas`). Al reiniciar,
-el agente levanta un socket nuevo y muestra su QR. Ese es todo el onboarding técnico.
+1. Envía al cliente el formulario de 10 preguntas: `docs/ONBOARDING_CLIENTE.md`
+2. Con sus respuestas, corre:
+   ```bash
+   npx tsx scripts/nueva_clinica.ts --json '{"nombre":"...","vertical":"veterinaria","telefono_humano":"57300...", ...}'
+   ```
+3. Reinicia el agente → escanea el QR con el WhatsApp de la clínica → entrega el link del panel.
+
+**Tiempo total: ~10 minutos.** Verticales soportados (probados e2e): `veterinaria` · `dental` · `estetica`.
+
+## Comandos del dueño (por WhatsApp)
+
+El dueño le escribe a su propia clínica y el bot lo reconoce (por `telefono_humano` o por el chat
+"tú mismo" con prefijo `/`):
+
+| Comando | Qué hace |
+|---------|----------|
+| `/hoy` | Resumen del día (citas, mensajes, clientes nuevos) |
+| `/semana` | Reporte semanal completo con comparativas |
+| `/panel` | Link de su panel de clientas |
+| `/info` | Ver toda la información de su negocio |
+| `/editar <cambio>` | Actualizar su info en lenguaje natural (con confirmación) |
+| `/clientes` | Últimos clientes que escribieron |
+| `/pausar` / `/activar` | Pausar o reactivar el asistente (la pausa también detiene recordatorios/reseñas) |
 
 ## Planes del servicio
 

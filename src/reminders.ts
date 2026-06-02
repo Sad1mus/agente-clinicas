@@ -1,6 +1,6 @@
 import type { Clinic } from './types.js';
 import { config } from './config.js';
-import { getActiveAppointmentsForDate, markReminderSent, saveMessage } from './db.js';
+import { getActiveAppointmentsForDate, markReminderSent, saveMessage, estaPausada } from './db.js';
 import { sendToContact } from './notifier.js';
 
 /**
@@ -47,6 +47,9 @@ function mensajeRecordatorio(clinic: Clinic, nombre: string | null, servicio: st
 }
 
 async function revisarClinica(clinic: Clinic): Promise<void> {
+  // Clínica pausada por el dueño: no enviar nada.
+  if (await estaPausada(clinic.id)) return;
+
   // Citas de hoy y de mañana (cubren ambas ventanas de recordatorio).
   const citas = [
     ...(await getActiveAppointmentsForDate(clinic.id, fechaISO(0))),

@@ -1,6 +1,6 @@
 import type { Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase } from './db.js';
+import { supabase, estaPausada } from './db.js';
 import { notifyHuman } from './notifier.js';
 import { planIncluye } from './plans.js';
 
@@ -142,6 +142,7 @@ export function startWeeklyReports(clinics: Clinic[]): NodeJS.Timeout {
     for (const clinic of clinics) {
       try {
         if (!planIncluye(clinic, 'reporte_semanal')) continue;
+        if (await estaPausada(clinic.id)) continue; // pausada por el dueño
         if (await reporteYaEnviado(clinic)) continue;
         const enviado = await enviarReporteSemanal(clinic);
         if (enviado) console.log(`[reportes] reporte semanal enviado a ${clinic.nombre}`);

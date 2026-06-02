@@ -84,6 +84,9 @@ const AYUDA = [
   '*/info* — ver la información de tu negocio',
   '*/editar <cambio>* — actualizar tu información',
   '   _ej: /editar ahora cerramos a las 5pm los sábados_',
+  '*/clientes* — últimos clientes que escribieron',
+  '*/pausar* — pausar el asistente (vacaciones, mantenimiento)',
+  '*/activar* — reactivar el asistente',
   '*/ayuda* — este menú',
 ].join('\n');
 
@@ -266,6 +269,65 @@ export async function handleOwnerCommand(
   // ── /info: ver la ficha del negocio ──────────────────────────────────────
   if (['info', 'informacion', 'mi negocio', 'ficha'].includes(cmd)) {
     return formatearFicha(clinic);
+  }
+
+  // ── /pausar y /activar: control del asistente ────────────────────────────
+  if (['pausar', 'pausa', 'apagar'].includes(cmd)) {
+    const { error } = await supabase.from('clinics').update({ pausado: true }).eq('id', clinic.id);
+    if (error) return '❌ No pude pausar el asistente. Intenta de nuevo.';
+    return [
+      '⏸️ *Asistente pausado.*',
+      '',
+      'Los clientes que escriban NO recibirán respuesta automática (sus mensajes quedan guardados para que no se pierdan). Tampoco se enviarán recordatorios ni mensajes automáticos.',
+      '',
+      'Cuando quieras reactivarlo: */activar*',
+    ].join('\n');
+  }
+
+  if (['activar', 'activa', 'encender', 'reactivar'].includes(cmd)) {
+    const { error } = await supabase.from('clinics').update({ pausado: false }).eq('id', clinic.id);
+    if (error) return '❌ No pude reactivar el asistente. Intenta de nuevo.';
+    return '▶️ *Asistente activo de nuevo.* Ya está respondiendo a tus clientes 24/7. 💪';
+  }
+
+  // ── /clientes: últimos contactos con su último mensaje ───────────────────
+  if (['clientes', 'contactos', 'ultimos clientes'].includes(cmd)) {
+    const { data: contactos } = await supabase
+      .from('contacts')
+      .select('jid, nombre, created_at')
+      .eq('clinic_id', clinic.id)
+      .order('created_at', { ascending: false })
+      .limit(5);
+
+    if (!contactos || contactos.length === 0) {
+      return 'Aún no hay clientes registrados. Cuando alguien escriba, aparecerá aquí. 👍';
+    }
+
+    const lineas: string[] = ['👥 *Últimos clientes:*', ''];
+    for (const c of contactos) {
+      const { data: ultimo } = await supabase
+        .from('messages')
+        .select('content, role, created_at')
+        .eq('clinic_id', clinic.id)
+        .eq('jid', c.jid)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      const msg = ultimo?.[0];
+      const numero = c.jid.split('@')[0];
+      const cuando = msg
+        ? new Date(msg.created_at as string).toLocaleString('es-CO', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+        : '';
+      const texto = msg ? String(msg.content).slice(0, 60) : '(sin mensajes)';
+      lineas.push(`• *${c.nombre ?? numero}* — ${cuando}`);
+      lineas.push(`  _"${texto}${texto.length >= 60 ? '…' : ''}"_`);
+    }
+    lineas.push('', `Conversaciones completas en tu panel: ${linkPanel(clinic)}`);
+    return lineas.join('\n');
   }
 
   // ── /editar <cambio>: actualizar la ficha con confirmación ───────────────

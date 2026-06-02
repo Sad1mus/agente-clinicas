@@ -69,7 +69,8 @@ async function flush(key: string): Promise<void> {
   try {
     if (e.typing) await e.typing().catch(() => {});
     const reply = await handleMessage(e.clinic, e.jid, combined);
-    await e.send(reply);
+    // reply === null → clínica pausada por el dueño: no responder nada.
+    if (reply !== null) await e.send(reply);
   } catch (err) {
     console.error(`[dispatcher] error procesando ${key}:`, err);
   } finally {

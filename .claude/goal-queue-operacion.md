@@ -1,6 +1,6 @@
 # Goal Queue — Operación autoservicio + verticales dental y estética
 
-estado: activa
+estado: completada
 current: 5
 turn_cap_por_item: 15
 
@@ -98,7 +98,7 @@ correr `npx tsx scripts/nueva_clinica.ts --json '...'` con una clínica ficticia
 **No tocar:** el seed.sql existente; las clínicas reales.
 **Evidencia:** typecheck exit 0 · ONBOARDING_CLIENTE.md con exactamente 10 preguntas (grep -c = 10) · nueva_clinica.ts creó "Veterinaria Prueba Onboarding" con defaults del vertical (servicios, $70k, tono) + token + link del panel con URL pública → verificada en Supabase → borrada (quedan las 3 reales).
 
-## [pending] 5. Controles del dueño (/pausar, /activar, /clientes)
+## [done] 5. Controles del dueño (/pausar, /activar, /clientes)
 **Condición:** (a) Migración: columna `clinics.pausado` (boolean default false) + sync schema.sql;
 (b) `/pausar`: marca pausado=true y el bot DEJA de responder a clientes de esa clínica (los
 mensajes igual se guardan en historial para no perderlos); el dueño recibe confirmación y los
@@ -112,7 +112,7 @@ pausado=true → un mensaje de cliente simulado NO genera respuesta (pero SÍ qu
 limpieza de datos de prueba · `git log --oneline -1` pusheado.
 **No tocar:** los recordatorios/reportes/reseñas (una clínica pausada tampoco los envía — incluir
 ese guard en los schedulers).
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · test_controles.ts ✅ 5/5: /pausar→pausado=true · mensaje de cliente pausada→null pero guardado en messages (role user) · /activar→false · mensaje activa→respuesta real del LLM con horario correcto · /clientes→lista con últimos contactos+panel · guards de pausa en reminders/reviews/cycles/reports · handleMessage ahora retorna string|null y dispatcher lo respeta.
 
 <!--
 Al terminar TODAS las tareas: actualizar README.md (sección de operación: onboarding,

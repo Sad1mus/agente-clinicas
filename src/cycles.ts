@@ -1,7 +1,6 @@
 import type { Ciclo, Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase } from './db.js';
-import { saveMessage } from './db.js';
+import { supabase, saveMessage, estaPausada } from './db.js';
 import { sendToContact } from './notifier.js';
 import { planIncluye } from './plans.js';
 
@@ -66,6 +65,7 @@ export async function revisarCiclos(
   enviar: EnviarFn = sendToContact,
 ): Promise<number> {
   if (!planIncluye(clinic, 'recordatorios_vacunas')) return 0;
+  if (await estaPausada(clinic.id)) return 0; // pausada por el dueño
 
   const pendientes = await ciclosPendientes(clinic);
   let enviados = 0;

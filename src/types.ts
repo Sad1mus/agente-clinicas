@@ -33,6 +33,8 @@ export interface Clinic {
   valor_cita_promedio: number;
   /** Link de Google Reviews de la clínica (para el pedido de reseñas, Growth/Scale). */
   google_review_url: string | null;
+  /** Pausado por el dueño (/pausar): el bot no responde a clientes ni envía mensajes automáticos. */
+  pausado: boolean;
   activo: boolean;
 }
 
