@@ -1,6 +1,6 @@
 # Goal Queue — Funciones premium (Growth/Scale) del agente de clínicas
 
-estado: activa
+estado: completada
 current: 5
 turn_cap_por_item: 15
 
@@ -86,7 +86,7 @@ programar_refuerzo (grep visible) · `git log --oneline -1` pusheado.
 guardar_lead, escalar_humano) siguen funcionando igual.
 **Evidencia:** typecheck exit 0 · tabla ciclos en Supabase (information_schema) · test_ciclos.ts ✅ PASA: ciclo de vacuna hoy → mensaje con mascota+descripción → enviado marcado → limpiado · tool programar_refuerzo en tools.ts:92/262 + prompts.ts:43 · scheduler 12h en index.ts.
 
-## [pending] 5. Rescate de llamadas perdidas (plan Scale)
+## [done] 5. Rescate de llamadas perdidas (plan Scale)
 **Condición:** En `src/whatsapp.ts`, listener del evento 'call' de Baileys: cuando una llamada
 entrante a la clínica termina sin respuesta (status terminate/timeout sin accept), el bot envía al
 llamante: "Hola, vi que llamaste a [clínica] 📞 No alcanzamos a contestar, pero te leo por aquí:
@@ -97,7 +97,7 @@ mensaje de rescate por contacto cada 6 horas (en memoria). SOLO si
 visible) · test unitario del handler con evento mock que imprime el mensaje que se enviaría y
 verifica el anti-spam (segunda llamada en <6h no genera mensaje) · `git log --oneline -1` pusheado.
 **No tocar:** el listener de messages.upsert existente; las llamadas contestadas no generan mensaje.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · listener sock.ev.on('call') en whatsapp.ts:74 (messages.upsert intacto en :84) · test_llamadas.ts ✅ 4/4: timeout→rescate+lead, anti-spam <6h→0, accept→0, plan basic→0 · src/missed-calls.ts con envío inyectable.
 
 <!--
 Al terminar TODAS las tareas: actualizar README.md (tabla de planes con las funciones

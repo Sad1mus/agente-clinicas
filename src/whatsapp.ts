@@ -12,6 +12,7 @@ import pino from 'pino';
 import type { Clinic } from './types.js';
 import { enqueue } from './dispatcher.js';
 import { registerNotifier } from './notifier.js';
+import { handleCallEvents } from './missed-calls.js';
 
 const logger = pino({ level: 'warn' });
 
@@ -65,6 +66,18 @@ export async function startClinicSocket(clinic: Clinic): Promise<void> {
       } else {
         console.log(`[${clinic.nombre}] sesión cerrada. Borra auth/${clinic.session_id} y re-escanea.`);
       }
+    }
+  });
+
+  // Rescate de llamadas perdidas (plan Scale): si llaman y nadie contesta,
+  // el bot escribe al instante para no perder al cliente.
+  sock.ev.on('call', async (calls) => {
+    try {
+      await handleCallEvents(clinic, calls, async (jid, texto) => {
+        await sock.sendMessage(jid, { text: texto });
+      });
+    } catch (err) {
+      console.error(`[${clinic.nombre}] error en rescate de llamadas:`, err);
     }
   });
 

@@ -72,17 +72,24 @@ el agente levanta un socket nuevo y muestra su QR. Ese es todo el onboarding té
 Derivados de las promesas de las campañas (`Inteligencia_Promesas.md`). **El panel de clientas
 (dashboard) está incluido en TODOS los planes** — es el valor agregado visual del servicio.
 
-| Funcionalidad | Basic | Growth | Scale |
-|---|:--:|:--:|:--:|
-| Agente WhatsApp 24/7 (responde y agenda solo) | ✅ | ✅ | ✅ |
-| 📊 **Panel de clientas** (citas, leads, conversaciones en vivo) | ✅ | ✅ | ✅ |
-| Recordatorios anti no-show (24h y 2h, con confirmación) | ✅ | ✅ | ✅ |
-| Escalamiento a humano por WhatsApp | ✅ | ✅ | ✅ |
-| Reactivación de pacientes inactivos (campañas WhatsApp) | — | ✅ | ✅ |
-| Voz IA de reactivación (llamadas salientes) | — | — | ✅ |
-| Multi-sede (varias sucursales) | — | — | ✅ |
+| Funcionalidad | Basic | Growth | Scale | Estado |
+|---|:--:|:--:|:--:|:--:|
+| Agente WhatsApp 24/7 (responde y agenda solo) | ✅ | ✅ | ✅ | ✅ Construido |
+| 📊 **Panel de clientas** (citas, leads, conversaciones en vivo) | ✅ | ✅ | ✅ | ✅ Construido |
+| Recordatorios anti no-show (24h y 2h, con confirmación) | ✅ | ✅ | ✅ | ✅ Construido |
+| Escalamiento a humano por WhatsApp | ✅ | ✅ | ✅ | ✅ Construido |
+| 📈 Reporte semanal al dueño por WhatsApp (lunes 8am) | — | ✅ | ✅ | ✅ Construido |
+| 💰 ROI estimado en el dashboard (citas × valor promedio) | — | ✅ | ✅ | ✅ Construido |
+| ⭐ Pedido de reseñas Google post-cita | — | ✅ | ✅ | ✅ Construido |
+| 💉 Recordatorios de vacunas/ciclos (vet) | — | ✅ | ✅ | ✅ Construido |
+| 📞 Rescate de llamadas perdidas | — | — | ✅ | ✅ Construido |
+| Reactivación de pacientes inactivos (campañas WhatsApp) | — | ✅ | ✅ | 🔜 Roadmap |
+| Voz IA de reactivación (llamadas salientes) | — | — | ✅ | 🔜 Roadmap |
+| Multi-sede (varias sucursales) | — | — | ✅ | 🔜 Roadmap |
 
-El plan vive en la columna `clinics.plan` (`basic` | `growth` | `scale`).
+El plan vive en la columna `clinics.plan` (`basic` | `growth` | `scale`). El gating se hace con
+`planIncluye(clinic, feature)` en `src/plans.ts`. Las funciones por plan se prueban con los
+scripts `scripts/test_*.ts` (reporte, reseñas, ciclos, llamadas).
 
 ## 📊 Panel de clientas (dashboard)
 
