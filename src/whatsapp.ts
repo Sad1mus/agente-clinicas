@@ -13,6 +13,7 @@ import type { Clinic } from './types.js';
 import { enqueue } from './dispatcher.js';
 import { registerNotifier } from './notifier.js';
 import { handleCallEvents } from './missed-calls.js';
+import { esDuenio, handleOwnerCommand, ayudaDuenio } from './owner.js';
 
 const logger = pino({ level: 'warn' });
 
@@ -85,12 +86,42 @@ export async function startClinicSocket(clinic: Clinic): Promise<void> {
     if (type !== 'notify') return;
     for (const m of messages) {
       const jid = m.key.remoteJid;
-      // Ignora: mensajes propios, grupos, estados/broadcast.
-      if (!jid || m.key.fromMe) continue;
+      if (!jid) continue;
       if (jid.endsWith('@g.us') || jid === 'status@broadcast') continue;
 
       const text = extractText(m);
       if (!text?.trim()) continue;
+      const jidDigits = jid.split('@')[0].split(':')[0];
+
+      // ── Comandos del dueño ─────────────────────────────────────────────
+      // Caso A — chat "tú mismo": el dueño usa el MISMO número del bot. Sus
+      // mensajes llegan con fromMe=true; solo se aceptan comandos con "/" para
+      // no entrar en bucle con las respuestas del propio bot.
+      const numerosPropios = new Set(
+        [sock.user?.id, sock.user?.lid]
+          .filter((v): v is string => Boolean(v))
+          .map((v) => v.split('@')[0].split(':')[0]),
+      );
+      const esSelfChat = m.key.fromMe && numerosPropios.has(jidDigits);
+      // Caso B — el dueño escribe desde su número personal (distinto al del bot).
+      const esDuenoExterno = !m.key.fromMe && esDuenio(clinic, jidDigits);
+
+      if (esSelfChat || esDuenoExterno) {
+        if (esSelfChat && !text.trim().startsWith('/')) continue; // ignora respuestas del bot
+        const respuesta = await handleOwnerCommand(clinic, text.trim());
+        if (respuesta) {
+          await sock.sendMessage(jid, { text: respuesta });
+        } else if (esSelfChat) {
+          // En self-chat un "/" desconocido muestra la ayuda.
+          await sock.sendMessage(jid, { text: ayudaDuenio });
+        }
+        // Dueño externo con texto que no es comando: cae al flujo normal (lo
+        // atiende el cerebro como a cualquier cliente).
+        if (esSelfChat || respuesta) continue;
+      }
+
+      // Ignora mensajes propios (respuestas del bot y ecos).
+      if (m.key.fromMe) continue;
 
       // Entrega al dispatcher: agrupa ráfagas (debounce) y serializa por contacto.
       enqueue(

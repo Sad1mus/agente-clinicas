@@ -18,4 +18,6 @@ export const config = {
   tz: process.env.TZ ?? 'America/Bogota',
   // Puerto del dashboard web (panel de clientas). Incluido en TODOS los planes.
   dashboardPort: Number(process.env.DASHBOARD_PORT ?? 3000),
+  // URL pública del dashboard (túnel o VPS). Se usa en los links que se envían por WhatsApp.
+  dashboardUrl: process.env.DASHBOARD_URL ?? `http://localhost:${process.env.DASHBOARD_PORT ?? 3000}`,
 };
