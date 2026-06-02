@@ -13,6 +13,17 @@ export async function getActiveClinics(): Promise<Clinic[]> {
   return (data ?? []) as Clinic[];
 }
 
+/** Carga una clínica por session_id, esté activa o no (para tests y onboarding). */
+export async function getClinicBySessionId(sessionId: string): Promise<Clinic | null> {
+  const { data, error } = await supabase
+    .from('clinics')
+    .select('*')
+    .eq('session_id', sessionId)
+    .limit(1);
+  if (error) throw error;
+  return (data?.[0] as Clinic) ?? null;
+}
+
 /** Últimos N turnos de la conversación con un contacto, en orden cronológico. */
 export async function getRecentHistory(
   clinicId: string,

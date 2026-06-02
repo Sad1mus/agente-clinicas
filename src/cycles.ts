@@ -21,6 +21,8 @@ const NOMBRE_TIPO: Record<Ciclo['tipo'], string> = {
   vacuna: 'el refuerzo de vacuna',
   desparasitacion: 'la desparasitación',
   control: 'el control',
+  limpieza: 'la limpieza dental',
+  sesion: 'la próxima sesión de tu tratamiento',
 };
 
 /** Fecha YYYY-MM-DD en la TZ de la clínica, con días extra. */
@@ -37,8 +39,9 @@ function fechaLocalISO(diasExtra = 0): string {
 export function generarMensajeCiclo(clinic: Clinic, ciclo: Ciclo): string {
   const quien = ciclo.mascota ? `a ${ciclo.mascota} le` : 'te';
   const detalle = ciclo.descripcion ? ` (${ciclo.descripcion})` : '';
+  const emoji = clinic.vertical === 'veterinaria' ? '🐾' : clinic.vertical === 'dental' ? '🦷' : '✨';
   return (
-    `¡Hola! Te escribimos de ${clinic.nombre} 🐾\n\n` +
+    `¡Hola! Te escribimos de ${clinic.nombre} ${emoji}\n\n` +
     `Se acerca ${NOMBRE_TIPO[ciclo.tipo]}${detalle}: ${quien} toca el *${ciclo.fecha_proxima}*.\n\n` +
     `¿Quieres que te agendemos la cita de una vez? Dime qué día te queda bien y te paso los horarios disponibles. 📅`
   );

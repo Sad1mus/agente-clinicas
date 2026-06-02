@@ -74,7 +74,7 @@ create table if not exists ciclos (
   clinic_id     uuid not null references clinics(id) on delete cascade,
   jid           text not null,                       -- contacto de WhatsApp a recordar
   mascota       text,
-  tipo          text not null check (tipo in ('vacuna','desparasitacion','control')),
+  tipo          text not null check (tipo in ('vacuna','desparasitacion','control','limpieza','sesion')),
   descripcion   text,                                -- ej: "refuerzo anual de rabia"
   fecha_proxima date not null,
   enviado       timestamptz,                         -- cuándo se envió el aviso (null = pendiente)

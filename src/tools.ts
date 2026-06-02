@@ -91,14 +91,15 @@ export const TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     function: {
       name: 'programar_refuerzo',
       description:
-        'Programa un recordatorio futuro de ciclo de salud (refuerzo de vacuna, desparasitación o control). Úsala cuando agendes una vacunación/desparasitación y el cliente acepte que le recordemos el refuerzo, o cuando el cliente pida que le recuerden algo en una fecha futura.',
+        'Programa un recordatorio futuro de ciclo de salud (refuerzo de vacuna, desparasitación, control, limpieza dental o sesión de tratamiento). Úsala cuando agendes un servicio recurrente y el cliente acepte que le recordemos el siguiente, o cuando el cliente pida que le recuerden algo en una fecha futura.',
       parameters: {
         type: 'object',
         properties: {
           tipo: {
             type: 'string',
-            enum: ['vacuna', 'desparasitacion', 'control'],
-            description: 'Tipo de ciclo a recordar',
+            enum: ['vacuna', 'desparasitacion', 'control', 'limpieza', 'sesion'],
+            description:
+              'Tipo de ciclo a recordar. vet: vacuna/desparasitacion/control · dental: limpieza/control · estética: sesion',
           },
           fecha_proxima: {
             type: 'string',

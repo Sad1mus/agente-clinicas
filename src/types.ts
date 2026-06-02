@@ -65,7 +65,7 @@ export interface Ciclo {
   clinic_id: string;
   jid: string;
   mascota: string | null;
-  tipo: 'vacuna' | 'desparasitacion' | 'control';
+  tipo: 'vacuna' | 'desparasitacion' | 'control' | 'limpieza' | 'sesion';
   descripcion: string | null;
   fecha_proxima: string; // YYYY-MM-DD
   enviado: string | null;

@@ -1,7 +1,7 @@
 # Goal Queue — Operación autoservicio + verticales dental y estética
 
 estado: activa
-current: 2
+current: 3
 turn_cap_por_item: 15
 
 <!--
@@ -51,7 +51,7 @@ a Supabase muestra info_extra actualizado → se revierte; (3) cambio sin confir
 de clientes normales no cambia.
 **Evidencia:** typecheck exit 0 · test_editar.ts ✅ 4/4: /info ficha completa · /editar Bitcoin→propuesta→/si→info_extra actualizado en Supabase ("...y Bitcoin")→revertido · sin confirmar no aplica · plan rechazado (⚠️ campo prohibido) · test_owner.ts sigue 6/6 (sin regresión).
 
-## [pending] 2. Vertical DENTAL completo (clínica de prueba + ciclos + prompt)
+## [done] 2. Vertical DENTAL completo (clínica de prueba + ciclos + prompt)
 **Condición:** (a) Clínica "Clínica Dental Sonríe" en Supabase: vertical dental, activo=false,
 plan growth, servicios dentales (valoración, limpieza, ortodoncia, implantes, blanqueamiento),
 horario, FAQs e info de prueba coherentes, con dashboard_token; (b) la tool `programar_refuerzo` y
@@ -67,7 +67,7 @@ una segunda vuelta agenda la cita (fila en appointments, luego borrada).
 `npx tsx scripts/test_dental.ts` exit 0 con la conversación impresa (respuestas del bot visibles) y
 la cita creada/borrada · `git log --oneline -1` pusheado.
 **No tocar:** la clínica veterinaria y sus datos; los ciclos de vacunas siguen igual.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · Clínica Dental Sonríe en Supabase (growth, activo=false, token de59e7bd) · test_dental.ts ✅: conversación real → bot ofreció horarios reales del calendario dental (08:00, 09:20... duración 40min) → agendó a "Carlos Pérez" (Valoración, vie 5 jun 08:00) → usó FAQ real ("valoración sin costo") → limpieza 0 filas · enum ciclos ampliado (limpieza/sesion) + prompt dental con valoración como siguiente paso.
 
 ## [pending] 3. Vertical ESTÉTICA completo (clínica de prueba + ciclos + prompt)
 **Condición:** (a) Clínica "Estética Belle" en Supabase: vertical estetica, activo=false, plan
