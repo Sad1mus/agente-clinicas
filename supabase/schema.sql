@@ -23,6 +23,7 @@ create table if not exists clinics (
   dashboard_token text unique,                      -- llave de acceso al panel de clientas (/d/<token>)
   ultimo_reporte  timestamptz,                      -- último reporte semanal enviado (Growth/Scale)
   valor_cita_promedio numeric not null default 0,   -- COP, para el ROI del dashboard (Growth/Scale)
+  google_review_url text,                           -- link de Google Reviews (pedido de reseñas, Growth/Scale)
   activo          boolean not null default true,
   created_at      timestamptz not null default now()
 );
@@ -62,6 +63,7 @@ create table if not exists appointments (
   estado      text not null default 'agendada' check (estado in ('agendada','confirmada','cancelada')),
   recordatorio_24h timestamptz,                     -- cuándo se envió el recordatorio de 24h (null = pendiente)
   recordatorio_2h  timestamptz,                     -- cuándo se envió el recordatorio de 2h (null = pendiente)
+  resena_pedida    timestamptz,                     -- cuándo se pidió la reseña de Google (null = pendiente)
   created_at  timestamptz not null default now()
 );
 create index if not exists idx_appointments_dia on appointments (clinic_id, fecha, estado);

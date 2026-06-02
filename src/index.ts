@@ -3,6 +3,7 @@ import { startClinicSocket } from './whatsapp.js';
 import { startDashboard } from './dashboard/server.js';
 import { startReminders } from './reminders.js';
 import { startWeeklyReports } from './reports.js';
+import { startReviews } from './reviews.js';
 import { config } from './config.js';
 
 async function main() {
@@ -34,6 +35,9 @@ async function main() {
 
   // Reporte semanal al dueño por WhatsApp (planes Growth/Scale).
   startWeeklyReports(clinics);
+
+  // Pedido de reseñas de Google post-cita (planes Growth/Scale).
+  startReviews(clinics);
 
   console.log('Listo. Esperando mensajes… (Ctrl+C para salir)');
 }

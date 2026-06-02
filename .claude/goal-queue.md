@@ -1,7 +1,7 @@
 # Goal Queue — Funciones premium (Growth/Scale) del agente de clínicas
 
 estado: activa
-current: 3
+current: 4
 turn_cap_por_item: 15
 
 <!--
@@ -58,7 +58,7 @@ muestra un número > 0 · el mismo curl con la clínica temporalmente en 'basic'
 **No tocar:** los KPIs existentes del dashboard ni el diseño general (solo agregar el banner).
 **Evidencia:** typecheck exit 0 · API con plan scale: roi_estimado_mes=80000 (1 cita × $80.000) · API con plan basic: campo ausente (tiene_roi=false) · restaurado a scale · banner gradiente verde en html.ts · columna valor_cita_promedio migrada y en schema/seed.
 
-## [pending] 3. Pedido de reseñas de Google post-cita
+## [done] 3. Pedido de reseñas de Google post-cita
 **Condición:** Migración: `clinics.google_review_url` (text; seed: un link de ejemplo en la clínica
 de prueba) y `appointments.resena_pedida` (timestamptz null). Módulo `src/reviews.ts`: cada hora
 revisa citas en estado confirmada/agendada cuya fecha+hora pasó hace entre 2 y 26 horas y
@@ -69,7 +69,7 @@ tiene `google_review_url`. Arrancado desde `src/index.ts`.
 muestra el mensaje generado y la cita marcada (query antes/después visible) · la cita simulada se
 borra al final · `git log --oneline -1` pusheado.
 **No tocar:** recordatorios anti no-show ni el flujo de agendamiento.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · test_resenas.ts ✅ PASA: cita simulada de ayer → mensaje generado con nombre+mascota+link de Google → resena_pedida marcada → cita borrada (0 filas) · fix de TZ: ventana 2-26h calculada con offset de config.tz (patrón de reminders.ts) · scheduler horario en index.ts.
 
 ## [pending] 4. Recordatorios de vacunas/ciclos (veterinarias)
 **Condición:** Migración: tabla `ciclos` (id, clinic_id, jid, mascota, tipo

@@ -31,6 +31,8 @@ export interface Clinic {
   ultimo_reporte: string | null;
   /** Valor promedio de una cita en COP (para el ROI del dashboard, Growth/Scale). */
   valor_cita_promedio: number;
+  /** Link de Google Reviews de la clínica (para el pedido de reseñas, Growth/Scale). */
+  google_review_url: string | null;
   activo: boolean;
 }
 
@@ -48,6 +50,7 @@ export interface Appointment {
   estado: 'agendada' | 'confirmada' | 'cancelada';
   recordatorio_24h: string | null;
   recordatorio_2h: string | null;
+  resena_pedida: string | null;
   created_at: string;
 }
 
