@@ -67,13 +67,53 @@ sin cachear para no invalidar el prefijo.
 Inserta una fila en `clinics` con un `session_id` único (ej. `dental-sonrisas`). Al reiniciar,
 el agente levanta un socket nuevo y muestra su QR. Ese es todo el onboarding técnico.
 
+## Planes del servicio
+
+Derivados de las promesas de las campañas (`Inteligencia_Promesas.md`). **El panel de clientas
+(dashboard) está incluido en TODOS los planes** — es el valor agregado visual del servicio.
+
+| Funcionalidad | Basic | Growth | Scale |
+|---|:--:|:--:|:--:|
+| Agente WhatsApp 24/7 (responde y agenda solo) | ✅ | ✅ | ✅ |
+| 📊 **Panel de clientas** (citas, leads, conversaciones en vivo) | ✅ | ✅ | ✅ |
+| Recordatorios anti no-show (24h y 2h, con confirmación) | ✅ | ✅ | ✅ |
+| Escalamiento a humano por WhatsApp | ✅ | ✅ | ✅ |
+| Reactivación de pacientes inactivos (campañas WhatsApp) | — | ✅ | ✅ |
+| Voz IA de reactivación (llamadas salientes) | — | — | ✅ |
+| Multi-sede (varias sucursales) | — | — | ✅ |
+
+El plan vive en la columna `clinics.plan` (`basic` | `growth` | `scale`).
+
+## 📊 Panel de clientas (dashboard)
+
+Cada clínica tiene su panel web privado, accesible por link con token (sin login):
+
+```
+http://<servidor>:3000/d/<dashboard_token>
+```
+
+Muestra en vivo (refresco cada 30s): **KPIs** (citas hoy/próximas, clientes atendidos, mensajes,
+escalamientos), **próximas citas** con estado (agendada/confirmada), **leads y escalamientos**,
+y las **conversaciones recientes** estilo chat. Mobile-first: el dueño lo abre desde el celular.
+
+El token está en `clinics.dashboard_token` (se genera solo con el seed). El puerto se configura
+con `DASHBOARD_PORT` en `.env`.
+
+## ⏰ Recordatorios anti no-show
+
+Cada 10 minutos el agente revisa las citas activas y envía por WhatsApp:
+- **24h antes**: recordatorio + pide confirmar (*SÍ* / *REAGENDAR*)
+- **2h antes**: recordatorio final
+
+La respuesta del cliente la maneja el cerebro con la herramienta `actualizar_cita`
+(confirmar/cancelar); si pide reagendar, cancela y agenda una nueva. Todo queda
+reflejado en el panel de clientas.
+
 ## Próximos pasos sugeridos
 
-- **Recordatorios anti no-show:** cron (Supabase `pg_cron` o Make) que 24h/2h antes envía y
-  pide confirmar la cita.
-- **Boceto generator:** la pieza que cierra ventas (chat-demo con el logo de la clínica).
+- **Boceto generator:** la pieza que cierra ventas (chat-demo con el logo de la clínica). ✅ Hecho.
 - **Migrar a WhatsApp Cloud API** para producción (reemplaza solo `src/whatsapp.ts`).
-- **Notificar el escalamiento** al `telefono_humano` de la clínica (hoy queda marcado en `leads`).
+- **Reactivación de inactivos** (plan Growth) y **voz IA** (plan Scale).
 
 ## Boceto generator (herramienta de ventas)
 

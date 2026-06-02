@@ -19,6 +19,8 @@ create table if not exists clinics (
   info_extra      jsonb not null default '{}',      -- FAQs: {"medios_pago": "...", "parqueadero": "..."}
   session_id      text not null unique,             -- carpeta de auth Baileys: auth/<session_id>
   telefono_humano text,                             -- a quién avisar al escalar
+  plan            text not null default 'basic' check (plan in ('basic','growth','scale')),
+  dashboard_token text unique,                      -- llave de acceso al panel de clientas (/d/<token>)
   activo          boolean not null default true,
   created_at      timestamptz not null default now()
 );
@@ -56,6 +58,8 @@ create table if not exists appointments (
   fecha       date not null,
   hora        time not null,
   estado      text not null default 'agendada' check (estado in ('agendada','confirmada','cancelada')),
+  recordatorio_24h timestamptz,                     -- cuándo se envió el recordatorio de 24h (null = pendiente)
+  recordatorio_2h  timestamptz,                     -- cuándo se envió el recordatorio de 2h (null = pendiente)
   created_at  timestamptz not null default now()
 );
 create index if not exists idx_appointments_dia on appointments (clinic_id, fecha, estado);

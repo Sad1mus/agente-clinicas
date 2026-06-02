@@ -27,4 +27,7 @@ values (
   '573226272302'
 );
 
+-- Genera el token del panel de clientas (dashboard) para las clínicas que no lo tengan.
+update clinics set dashboard_token = encode(gen_random_bytes(16), 'hex') where dashboard_token is null;
+
 -- dias: 1=lunes ... 7=domingo. almuerzo: rango bloqueado [desde, hasta].

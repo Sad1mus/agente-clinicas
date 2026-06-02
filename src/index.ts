@@ -1,5 +1,8 @@
 import { getActiveClinics } from './db.js';
 import { startClinicSocket } from './whatsapp.js';
+import { startDashboard } from './dashboard/server.js';
+import { startReminders } from './reminders.js';
+import { config } from './config.js';
 
 async function main() {
   console.log('Agente de clínicas — arrancando…');
@@ -16,6 +19,17 @@ async function main() {
   for (const clinic of clinics) {
     await startClinicSocket(clinic);
   }
+
+  // Panel de clientas (dashboard web) — incluido en TODOS los planes.
+  startDashboard();
+  for (const clinic of clinics) {
+    if (clinic.dashboard_token) {
+      console.log(`   📊 ${clinic.nombre}: http://localhost:${config.dashboardPort}/d/${clinic.dashboard_token}`);
+    }
+  }
+
+  // Recordatorios anti no-show (24h y 2h antes, con confirmación por chat).
+  startReminders(clinics);
 
   console.log('Listo. Esperando mensajes… (Ctrl+C para salir)');
 }

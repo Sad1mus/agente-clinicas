@@ -16,4 +16,6 @@ export const config = {
   appUrl: process.env.APP_URL ?? 'https://localhost',
   appName: process.env.APP_NAME ?? 'Agente Clinicas',
   tz: process.env.TZ ?? 'America/Bogota',
+  // Puerto del dashboard web (panel de clientas). Incluido en TODOS los planes.
+  dashboardPort: Number(process.env.DASHBOARD_PORT ?? 3000),
 };

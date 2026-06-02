@@ -1,5 +1,8 @@
 export type Vertical = 'veterinaria' | 'dental' | 'estetica';
 
+/** Planes del servicio. TODOS incluyen dashboard (panel de clientas). */
+export type Plan = 'basic' | 'growth' | 'scale';
+
 export interface Horario {
   dias: number[];          // 1=lunes ... 7=domingo
   inicio: string;          // "08:00"
@@ -21,7 +24,27 @@ export interface Clinic {
   info_extra: Record<string, string>;
   session_id: string;
   telefono_humano: string | null;
+  plan: Plan;
+  /** Token de acceso al dashboard de esta clínica (URL: /d/<token>). */
+  dashboard_token: string | null;
   activo: boolean;
+}
+
+/** Cita tal como vive en la tabla appointments. */
+export interface Appointment {
+  id: string;
+  clinic_id: string;
+  jid: string | null;
+  nombre: string | null;
+  telefono: string | null;
+  servicio: string | null;
+  mascota: string | null;
+  fecha: string;        // YYYY-MM-DD
+  hora: string;         // HH:MM:SS
+  estado: 'agendada' | 'confirmada' | 'cancelada';
+  recordatorio_24h: string | null;
+  recordatorio_2h: string | null;
+  created_at: string;
 }
 
 export interface HistoryMessage {

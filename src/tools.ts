@@ -1,7 +1,13 @@
 import type OpenAI from 'openai';
 import type { Clinic } from './types.js';
 import { config } from './config.js';
-import { getAppointmentsForDate, createAppointment, saveLead } from './db.js';
+import {
+  getAppointmentsForDate,
+  createAppointment,
+  saveLead,
+  getUpcomingAppointment,
+  setAppointmentStatus,
+} from './db.js';
 import { notifyHuman } from './notifier.js';
 
 /** Definiciones de herramientas (formato OpenAI / OpenRouter). Descripciones
@@ -39,6 +45,25 @@ export const TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
           mascota: { type: 'string', description: 'Nombre de la mascota/paciente, solo si aplica' },
         },
         required: ['nombre', 'fecha', 'hora', 'servicio'],
+      },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'actualizar_cita',
+      description:
+        'Confirma o cancela la próxima cita del cliente. Úsala cuando el cliente responda a un recordatorio: "sí"/"confirmo" → confirmar; "no puedo"/"cancela" → cancelar. Si quiere REAGENDAR: primero cancela con esta herramienta y luego agenda la nueva con consultar_disponibilidad + agendar_cita.',
+      parameters: {
+        type: 'object',
+        properties: {
+          accion: {
+            type: 'string',
+            enum: ['confirmar', 'cancelar'],
+            description: 'Qué hacer con la próxima cita del cliente',
+          },
+        },
+        required: ['accion'],
       },
     },
   },
@@ -176,6 +201,21 @@ export async function runTool(
           hora,
         });
         return JSON.stringify({ ok: true, fecha, hora, mensaje: 'Cita agendada en el calendario.' });
+      }
+
+      case 'actualizar_cita': {
+        const accion = String(input.accion);
+        const cita = await getUpcomingAppointment(clinic.id, jid);
+        if (!cita) {
+          return JSON.stringify({ ok: false, error: 'Este cliente no tiene citas próximas activas.' });
+        }
+        const nuevoEstado = accion === 'confirmar' ? 'confirmada' : 'cancelada';
+        await setAppointmentStatus(cita.id, nuevoEstado);
+        return JSON.stringify({
+          ok: true,
+          estado: nuevoEstado,
+          cita: { fecha: cita.fecha, hora: cita.hora.slice(0, 5), servicio: cita.servicio },
+        });
       }
 
       case 'guardar_lead': {

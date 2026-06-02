@@ -29,3 +29,20 @@ export async function notifyHuman(clinic: Clinic, message: string): Promise<bool
     return false;
   }
 }
+
+/** Envía un mensaje a un contacto (jid) por el socket de su clínica.
+ *  Lo usan los recordatorios anti no-show. Devuelve true si se envió. */
+export async function sendToContact(clinic: Clinic, jid: string, message: string): Promise<boolean> {
+  const fn = registry.get(clinic.id);
+  if (!fn) {
+    console.warn(`[notifier] la clínica ${clinic.nombre} no tiene socket registrado.`);
+    return false;
+  }
+  try {
+    await fn(jid, message);
+    return true;
+  } catch (err) {
+    console.error('[notifier] error enviando mensaje a contacto:', err);
+    return false;
+  }
+}
