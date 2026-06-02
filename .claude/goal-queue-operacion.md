@@ -1,7 +1,7 @@
 # Goal Queue — Operación autoservicio + verticales dental y estética
 
 estado: activa
-current: 3
+current: 4
 turn_cap_por_item: 15
 
 <!--
@@ -69,7 +69,7 @@ la cita creada/borrada · `git log --oneline -1` pusheado.
 **No tocar:** la clínica veterinaria y sus datos; los ciclos de vacunas siguen igual.
 **Evidencia:** typecheck exit 0 · Clínica Dental Sonríe en Supabase (growth, activo=false, token de59e7bd) · test_dental.ts ✅: conversación real → bot ofreció horarios reales del calendario dental (08:00, 09:20... duración 40min) → agendó a "Carlos Pérez" (Valoración, vie 5 jun 08:00) → usó FAQ real ("valoración sin costo") → limpieza 0 filas · enum ciclos ampliado (limpieza/sesion) + prompt dental con valoración como siguiente paso.
 
-## [pending] 3. Vertical ESTÉTICA completo (clínica de prueba + ciclos + prompt)
+## [done] 3. Vertical ESTÉTICA completo (clínica de prueba + ciclos + prompt)
 **Condición:** (a) Clínica "Estética Belle" en Supabase: vertical estetica, activo=false, plan
 growth, servicios (valoración facial, limpieza facial, botox, depilación láser, masajes), horario,
 FAQs, dashboard_token; (b) ciclos estéticos: tipo 'sesion' (seguimiento de tratamiento, ej.
@@ -83,7 +83,7 @@ equipo confirma o escalar) y que ofrece agendar valoración.
 scripts/test_estetica.ts` exit 0: respuesta visible SIN precio inventado + oferta de valoración ·
 `git log --oneline -1` pusheado.
 **No tocar:** las otras dos clínicas y sus flujos.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · Estética Belle en Supabase (growth, activo=false, token 08f5bbe5) · test_estetica.ts ✅ 3/3: pregunta de precio de depilación láser → NO inventó cifra, redirigió a valoración con presupuesto exacto → ofreció horarios reales (09:00-18:00, citas de 60min) → limpieza ok · prompt estética con regla dura de precios + ciclos tipo 'sesion'.
 
 ## [pending] 4. Onboarding express (formulario + alta en 1 comando)
 **Condición:** (a) `docs/ONBOARDING_CLIENTE.md`: el formulario de 10 preguntas para clientes

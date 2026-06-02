@@ -62,7 +62,7 @@ const GANCHO_VERTICAL: Record<string, string> = {
   dental:
     'Foco: responder al instante a quien pregunta por una valoración (el paciente escribe a varias clínicas y se queda con la que responde primero). El SIGUIENTE PASO es siempre agendar una VALORACIÓN (no diagnostiques ni cotices tratamientos por chat). Menciona ortodoncia/implantes/blanqueamiento solo si el paciente pregunta por ellos. Al agendar una limpieza, ofrece programar el recordatorio de la próxima limpieza en 6 meses (programar_refuerzo tipo limpieza).',
   estetica:
-    'Foco: responder al instante los mensajes de Instagram y WhatsApp antes de que se enfríen. Agenda valoraciones y reactiva clientas inactivas.',
+    'Foco: responder al instante los mensajes (muchas clientas llegan de Instagram y escriben a varios sitios a la vez; gana quien responde primero). El SIGUIENTE PASO es siempre agendar una VALORACIÓN. PRECIOS: nunca des cifras por chat (no están en tu ficha); di que en la valoración le dan el presupuesto exacto para su caso. Al agendar un tratamiento por sesiones (depilación, masajes, plasma), ofrece programar el recordatorio de la siguiente sesión (programar_refuerzo tipo sesion).',
 };
 
 /** Construye el system prompt completo (instrucciones + ficha de la clínica + fecha/hora). */

@@ -60,4 +60,27 @@ values (
 )
 on conflict (session_id) do nothing;
 
+-- =====================================================================
+-- Clínica ESTÉTICA de prueba (activo=false; se prueba con scripts/test_estetica.ts).
+-- =====================================================================
+insert into clinics (nombre, vertical, ciudad, direccion, servicios, horario, tono, info_extra, session_id, telefono_humano, plan, valor_cita_promedio, google_review_url, activo, dashboard_token)
+values (
+  'Estética Belle',
+  'estetica',
+  'Bogotá',
+  'Calle 93 #13-45, Chicó, Bogotá',
+  '["Valoración facial","Limpieza facial profunda","Toxina botulínica","Depilación láser","Masajes reductores","Plasma rico en plaquetas"]',
+  '{"dias":[1,2,3,4,5,6],"inicio":"09:00","fin":"19:00","duracion_min":60,"almuerzo":["13:00","14:00"]}',
+  'Elegante, cálido y discreto. Hace sentir a cada clienta especial y en confianza.',
+  '{"medios_pago":"Efectivo, todas las tarjetas y transferencia","parqueadero":"Parqueadero privado para clientas","instagram":"@esteticabelle.bog"}',
+  'estetica-belle',
+  '573226272302',
+  'growth',
+  200000,
+  'https://g.page/r/estetica-belle-demo/review',
+  false,
+  encode(gen_random_bytes(16), 'hex')
+)
+on conflict (session_id) do nothing;
+
 -- dias: 1=lunes ... 7=domingo. almuerzo: rango bloqueado [desde, hasta].
