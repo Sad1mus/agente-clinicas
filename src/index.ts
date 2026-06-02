@@ -2,6 +2,7 @@ import { getActiveClinics } from './db.js';
 import { startClinicSocket } from './whatsapp.js';
 import { startDashboard } from './dashboard/server.js';
 import { startReminders } from './reminders.js';
+import { startWeeklyReports } from './reports.js';
 import { config } from './config.js';
 
 async function main() {
@@ -30,6 +31,9 @@ async function main() {
 
   // Recordatorios anti no-show (24h y 2h antes, con confirmación por chat).
   startReminders(clinics);
+
+  // Reporte semanal al dueño por WhatsApp (planes Growth/Scale).
+  startWeeklyReports(clinics);
 
   console.log('Listo. Esperando mensajes… (Ctrl+C para salir)');
 }

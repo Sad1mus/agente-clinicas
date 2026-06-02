@@ -27,6 +27,8 @@ export interface Clinic {
   plan: Plan;
   /** Token de acceso al dashboard de esta clínica (URL: /d/<token>). */
   dashboard_token: string | null;
+  /** Cuándo se envió el último reporte semanal (planes Growth/Scale). */
+  ultimo_reporte: string | null;
   activo: boolean;
 }
 

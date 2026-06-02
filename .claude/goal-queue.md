@@ -1,7 +1,7 @@
 # Goal Queue — Funciones premium (Growth/Scale) del agente de clínicas
 
 estado: activa
-current: 1
+current: 2
 turn_cap_por_item: 15
 
 <!--
@@ -33,7 +33,7 @@ Reglas permanentes del proyecto:
 - El proceso del usuario corre con tsx watch: no hace falta reiniciarlo a mano.
 -->
 
-## [pending] 1. Gating por plan + reporte semanal al dueño por WhatsApp
+## [done] 1. Gating por plan + reporte semanal al dueño por WhatsApp
 **Condición:** Existe `src/plans.ts` con `planIncluye(clinic, feature)` (mapa feature→plan mínimo)
 y `src/reports.ts` que: (a) genera el resumen semanal de una clínica (citas agendadas/confirmadas/
 canceladas, clientes nuevos, escalamientos, mensajes atendidos, comparativa vs semana anterior),
@@ -44,7 +44,7 @@ notifier, (c) SOLO para clínicas con plan growth/scale. La clínica de prueba q
 generadora del reporte para la clínica de prueba e IMPRIME el texto del reporte con datos reales ·
 query a Supabase que muestra `plan='scale'` · `git log --oneline -1` mostrando el commit pusheado.
 **No tocar:** el flujo actual de mensajes (dispatcher/brain) ni los recordatorios anti no-show.
-**Evidencia:**
+**Evidencia:** typecheck exit 0 · `scripts/test_reporte.ts` imprimió reporte real (1 cita, 3 clientes, 11 mensajes, 1 escalamiento, comparativas 📈) y gating "SÍ ✅" con plan scale · Supabase: plan='scale' · src/plans.ts + src/reports.ts creados, scheduler lunes 8am en index.ts.
 
 ## [pending] 2. ROI visible en el dashboard
 **Condición:** Migración: columna `clinics.valor_cita_promedio` (numeric, COP; seed: 80000 para

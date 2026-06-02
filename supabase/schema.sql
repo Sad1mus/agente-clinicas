@@ -21,6 +21,7 @@ create table if not exists clinics (
   telefono_humano text,                             -- a quién avisar al escalar
   plan            text not null default 'basic' check (plan in ('basic','growth','scale')),
   dashboard_token text unique,                      -- llave de acceso al panel de clientas (/d/<token>)
+  ultimo_reporte  timestamptz,                      -- último reporte semanal enviado (Growth/Scale)
   activo          boolean not null default true,
   created_at      timestamptz not null default now()
 );
