@@ -1,6 +1,7 @@
 import type { Ciclo, Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase, saveMessage, estaPausada } from './db.js';
+import { saveMessage, estaPausada } from './db.js';
+import { forClinic } from './scope.js';
 import { sendToContact } from './notifier.js';
 import { planIncluye } from './plans.js';
 
@@ -49,10 +50,8 @@ export function generarMensajeCiclo(clinic: Clinic, ciclo: Ciclo): string {
 /** Ciclos pendientes de aviso (fecha_proxima <= hoy+3 días, sin enviar). */
 export async function ciclosPendientes(clinic: Clinic): Promise<Ciclo[]> {
   const limite = fechaLocalISO(3);
-  const { data, error } = await supabase
-    .from('ciclos')
-    .select('*')
-    .eq('clinic_id', clinic.id)
+  const { data, error } = await forClinic(clinic.id)
+    .select('ciclos', '*')
     .is('enviado', null)
     .lte('fecha_proxima', limite);
   if (error) throw error;
@@ -74,9 +73,8 @@ export async function revisarCiclos(
     const texto = generarMensajeCiclo(clinic, ciclo);
     const ok = await enviar(clinic, ciclo.jid, texto);
     if (ok) {
-      await supabase
-        .from('ciclos')
-        .update({ enviado: new Date().toISOString() })
+      await forClinic(clinic.id)
+        .update('ciclos', { enviado: new Date().toISOString() })
         .eq('id', ciclo.id);
       // Entra al historial para que el cerebro tenga contexto cuando el cliente responda.
       await saveMessage(clinic.id, ciclo.jid, 'assistant', texto);

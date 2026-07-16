@@ -5,7 +5,8 @@
  *
  *   npx tsx scripts/test_ciclos.ts
  */
-import { getActiveClinics, supabase } from '../src/db.js';
+import { getActiveClinics } from '../src/db.js';
+import { forClinic } from '../src/scope.js';
 import { revisarCiclos } from '../src/cycles.js';
 
 const clinic = (await getActiveClinics())[0];
@@ -16,9 +17,8 @@ const hoy = new Date();
 const pad = (n: number) => String(n).padStart(2, '0');
 const fechaHoy = `${hoy.getFullYear()}-${pad(hoy.getMonth() + 1)}-${pad(hoy.getDate())}`;
 
-const { data: ciclo, error } = await supabase
-  .from('ciclos')
-  .insert({
+const { data: ciclo, error } = await forClinic(clinic.id)
+  .insert('ciclos', {
     clinic_id: clinic.id,
     jid: 'test-ciclo@s.whatsapp.net',
     mascota: 'Firulais',
@@ -43,18 +43,17 @@ const enviados = await revisarCiclos(clinic, async (_clinic, jid, texto) => {
 });
 
 // 3. Verificar que el ciclo quedó marcado.
-const { data: despues } = await supabase
-  .from('ciclos')
-  .select('id, enviado')
+const { data: despues } = await forClinic(clinic.id)
+  .select('ciclos', 'id, enviado')
   .eq('id', ciclo.id)
   .single();
 console.log('\n=== DESPUÉS: ciclo marcado ===');
 console.log({ id: despues?.id, enviado: despues?.enviado });
 
 // 4. Limpieza (ciclo + mensaje de historial que guarda revisarCiclos).
-await supabase.from('ciclos').delete().eq('id', ciclo.id);
-await supabase.from('messages').delete().eq('clinic_id', clinic.id).eq('jid', 'test-ciclo@s.whatsapp.net');
-const { data: restantes } = await supabase.from('ciclos').select('id').eq('id', ciclo.id);
+await forClinic(clinic.id).delete('ciclos').eq('id', ciclo.id);
+await forClinic(clinic.id).delete('messages').eq('jid', 'test-ciclo@s.whatsapp.net');
+const { data: restantes } = await forClinic(clinic.id).select('ciclos', 'id').eq('id', ciclo.id);
 console.log('\n=== LIMPIEZA ===');
 console.log({ ciclos_restantes: restantes?.length ?? 0 });
 

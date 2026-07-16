@@ -8,7 +8,8 @@
  *
  *   npx tsx scripts/test_controles.ts
  */
-import { getClinicBySessionId, supabase } from '../src/db.js';
+import { getClinicBySessionId } from '../src/db.js';
+import { forClinic, clinicsTable } from '../src/scope.js';
 import { handleOwnerCommand } from '../src/owner.js';
 import { handleMessage } from '../src/brain.js';
 
@@ -22,9 +23,9 @@ const resultados: boolean[] = [];
 
 // Limpieza previa.
 const limpiar = async () => {
-  await supabase.from('messages').delete().eq('clinic_id', clinic.id).in('jid', [JID_CLIENTE]);
-  await supabase.from('contacts').delete().eq('clinic_id', clinic.id).in('jid', [JID_CLIENTE]);
-  await supabase.from('appointments').delete().eq('clinic_id', clinic.id).in('jid', [JID_CLIENTE]);
+  await forClinic(clinic.id).delete('messages').in('jid', [JID_CLIENTE]);
+  await forClinic(clinic.id).delete('contacts').in('jid', [JID_CLIENTE]);
+  await forClinic(clinic.id).delete('appointments').in('jid', [JID_CLIENTE]);
 };
 await limpiar();
 
@@ -32,7 +33,7 @@ await limpiar();
 console.log('════════ TEST 1: /pausar ════════');
 const rPausar = await handleOwnerCommand(clinic, '/pausar', JID_DUENO);
 console.log(rPausar);
-const { data: estado1 } = await supabase.from('clinics').select('pausado').eq('id', clinic.id).single();
+const { data: estado1 } = await clinicsTable().select('pausado').eq('id', clinic.id).single();
 console.log(`\n>> pausado en Supabase: ${estado1?.pausado}`);
 resultados.push(estado1?.pausado === true);
 
@@ -41,10 +42,8 @@ console.log('\n════════ TEST 2: mensaje de cliente estando PAUSA
 const clinicPausada = { ...clinic, pausado: true };
 const respuestaPausada = await handleMessage(clinicPausada, JID_CLIENTE, 'Hola, quiero una cita');
 console.log(`>> Respuesta del bot: ${respuestaPausada === null ? 'NINGUNA (null) ✅' : `"${respuestaPausada}" ❌`}`);
-const { data: msgsPausada } = await supabase
-  .from('messages')
-  .select('role, content')
-  .eq('clinic_id', clinic.id)
+const { data: msgsPausada } = await forClinic(clinic.id)
+  .select('messages', 'role, content')
   .eq('jid', JID_CLIENTE);
 console.log(`>> Mensajes guardados en historial: ${msgsPausada?.length} (el mensaje del cliente NO se perdió)`);
 console.log(msgsPausada);
@@ -54,7 +53,7 @@ resultados.push(respuestaPausada === null && (msgsPausada?.length ?? 0) === 1 &&
 console.log('\n════════ TEST 3: /activar ════════');
 const rActivar = await handleOwnerCommand(clinic, '/activar', JID_DUENO);
 console.log(rActivar);
-const { data: estado2 } = await supabase.from('clinics').select('pausado').eq('id', clinic.id).single();
+const { data: estado2 } = await clinicsTable().select('pausado').eq('id', clinic.id).single();
 console.log(`\n>> pausado en Supabase: ${estado2?.pausado}`);
 resultados.push(estado2?.pausado === false);
 

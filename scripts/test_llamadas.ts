@@ -8,7 +8,8 @@
  *
  *   npx tsx scripts/test_llamadas.ts
  */
-import { getActiveClinics, supabase } from '../src/db.js';
+import { getActiveClinics } from '../src/db.js';
+import { forClinic } from '../src/scope.js';
 import { handleCallEvents, resetAntiSpam } from '../src/missed-calls.js';
 
 const clinic = (await getActiveClinics())[0];
@@ -56,8 +57,8 @@ console.log(`Rescates enviados: ${r4} (esperado: 0)`);
 resultados.push(r4 === 0);
 
 // ── Limpieza: leads y mensajes de prueba ─────────────────────────────────
-await supabase.from('leads').delete().eq('clinic_id', clinic.id).eq('jid', JID_TEST);
-await supabase.from('messages').delete().eq('clinic_id', clinic.id).eq('jid', JID_TEST);
+await forClinic(clinic.id).delete('leads').eq('jid', JID_TEST);
+await forClinic(clinic.id).delete('messages').eq('jid', JID_TEST);
 console.log('\n=== LIMPIEZA: leads y mensajes de prueba borrados ===');
 
 const ok = resultados.every(Boolean);

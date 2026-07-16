@@ -8,7 +8,8 @@
  *
  *   npx tsx scripts/test_dental.ts
  */
-import { getClinicBySessionId, supabase } from '../src/db.js';
+import { getClinicBySessionId } from '../src/db.js';
+import { forClinic } from '../src/scope.js';
 import { handleMessage } from '../src/brain.js';
 
 const clinic = await getClinicBySessionId('dental-sonrie');
@@ -18,9 +19,9 @@ const JID = 'test-dental@s.whatsapp.net';
 const resultados: boolean[] = [];
 
 // Limpieza previa por si quedó basura de una corrida anterior.
-await supabase.from('messages').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-await supabase.from('appointments').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-await supabase.from('contacts').delete().eq('clinic_id', clinic.id).eq('jid', JID);
+await forClinic(clinic.id).delete('messages').eq('jid', JID);
+await forClinic(clinic.id).delete('appointments').eq('jid', JID);
+await forClinic(clinic.id).delete('contacts').eq('jid', JID);
 
 console.log(`Clínica: ${clinic.nombre} (${clinic.vertical}, plan ${clinic.plan})\n`);
 
@@ -29,6 +30,11 @@ const pregunta1 = 'Hola, quiero una valoración para implantes, ¿tienen algo el
 console.log(`👤 CLIENTE: ${pregunta1}\n`);
 const respuesta1 = await handleMessage(clinic, JID, pregunta1);
 console.log(`🤖 BOT: ${respuesta1}\n`);
+if (respuesta1 === null) {
+  console.error('❌ El bot no respondió (null): no hay nada que evaluar. Revisa OPENROUTER_API_KEY / el modelo.');
+  process.exit(1);
+}
+
 
 // Debe ofrecer horarios reales (formato de hora) y no inventar diagnósticos.
 const ofreceHorarios = /\d{1,2}:\d{2}/.test(respuesta1);
@@ -41,12 +47,15 @@ const pregunta2 = `Perfecto, a las ${horaOfrecida} está bien. Mi nombre es Carl
 console.log(`\n👤 CLIENTE: ${pregunta2}\n`);
 const respuesta2 = await handleMessage(clinic, JID, pregunta2);
 console.log(`🤖 BOT: ${respuesta2}\n`);
+if (respuesta2 === null) {
+  console.error('❌ El bot no respondió (null): no hay nada que evaluar. Revisa OPENROUTER_API_KEY / el modelo.');
+  process.exit(1);
+}
+
 
 // ── Verificar que la cita quedó en la base ───────────────────────────────────
-const { data: citas } = await supabase
-  .from('appointments')
-  .select('nombre, servicio, fecha, hora, estado')
-  .eq('clinic_id', clinic.id)
+const { data: citas } = await forClinic(clinic.id)
+  .select('appointments', 'nombre, servicio, fecha, hora, estado')
   .eq('jid', JID);
 
 console.log('=== CITAS CREADAS EN SUPABASE ===');
@@ -55,14 +64,12 @@ const citaCreada = (citas ?? []).length >= 1;
 resultados.push(citaCreada);
 
 // ── Limpieza ──────────────────────────────────────────────────────────────────
-await supabase.from('appointments').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-await supabase.from('messages').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-await supabase.from('contacts').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-await supabase.from('ciclos').delete().eq('clinic_id', clinic.id).eq('jid', JID);
-const { data: restantes } = await supabase
-  .from('appointments')
-  .select('id')
-  .eq('clinic_id', clinic.id)
+await forClinic(clinic.id).delete('appointments').eq('jid', JID);
+await forClinic(clinic.id).delete('messages').eq('jid', JID);
+await forClinic(clinic.id).delete('contacts').eq('jid', JID);
+await forClinic(clinic.id).delete('ciclos').eq('jid', JID);
+const { data: restantes } = await forClinic(clinic.id)
+  .select('appointments', 'id')
   .eq('jid', JID);
 console.log(`\n=== LIMPIEZA: citas de prueba restantes: ${restantes?.length ?? 0} ===`);
 

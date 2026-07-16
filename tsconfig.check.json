@@ -1,0 +1,18 @@
+{
+  // Chequeo de tipos MÁS AMPLIO que el build.
+  //
+  // `tsconfig.json` compila solo `src/` (rootDir: src → dist). Pero `scripts/`
+  // también es código real: `nueva_clinica.ts` es el onboarding de producción, y
+  // los `test_*.ts` son los smoke tests. Si no se typechequean, un cambio en
+  // `src/db.ts` puede romperlos en silencio — que es exactamente lo que pasó al
+  // introducir la frontera de tenant (scope.ts): el build seguía verde y 8
+  // scripts quedaron rotos.
+  //
+  // Este config no emite nada: solo verifica que TODO el proyecto compila.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src/**/*.ts", "scripts/**/*.ts"]
+}

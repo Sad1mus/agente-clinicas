@@ -73,7 +73,7 @@ async function revisarClinica(clinic: Clinic): Promise<void> {
 
     const enviado = await sendToContact(clinic, cita.jid, texto);
     if (enviado) {
-      await markReminderSent(cita.id, tipo);
+      await markReminderSent(clinic.id, cita.id, tipo);
       // El recordatorio entra al historial para que el cerebro tenga contexto
       // cuando el cliente responda "sí" o "reagendar".
       await saveMessage(clinic.id, cita.jid, 'assistant', texto);

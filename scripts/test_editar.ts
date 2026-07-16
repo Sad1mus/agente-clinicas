@@ -9,7 +9,8 @@
  *
  * Usa el LLM real (modelos :free de OpenRouter) para interpretar los cambios.
  */
-import { getActiveClinics, supabase } from '../src/db.js';
+import { getActiveClinics } from '../src/db.js';
+import { clinicsTable } from '../src/scope.js';
 import { handleOwnerCommand, limpiarEdicionesPendientes } from '../src/owner.js';
 
 const clinic = (await getActiveClinics())[0];
@@ -47,8 +48,8 @@ console.log('\n--- TRAS CONFIRMAR: ---');
 console.log(confirmacion);
 
 // Verificar en Supabase que info_extra cambió.
-const { data: despues } = await supabase
-  .from('clinics')
+const { data: despues } = await clinicsTable()
+  
   .select('info_extra')
   .eq('id', clinic.id)
   .single();
@@ -59,9 +60,9 @@ console.log(infoExtraNuevo);
 resultados.push(hayPropuesta && Boolean(confirmacion?.includes('✅')) && aplicado);
 
 // Revertir al estado original.
-await supabase.from('clinics').update({ info_extra: infoExtraOriginal }).eq('id', clinic.id);
-const { data: revertido } = await supabase
-  .from('clinics')
+await clinicsTable().update({ info_extra: infoExtraOriginal }).eq('id', clinic.id);
+const { data: revertido } = await clinicsTable()
+  
   .select('info_extra')
   .eq('id', clinic.id)
   .single();
@@ -73,8 +74,8 @@ console.log('\n════════ TEST 3: /editar sin confirmar ═══�
 limpiarEdicionesPendientes();
 await handleOwnerCommand(clinic, '/editar agreguen el servicio de fisioterapia canina', JID);
 // NO confirmamos. Verificar que servicios NO cambió en Supabase.
-const { data: sinConfirmar } = await supabase
-  .from('clinics')
+const { data: sinConfirmar } = await clinicsTable()
+  
   .select('servicios')
   .eq('id', clinic.id)
   .single();
@@ -92,8 +93,8 @@ limpiarEdicionesPendientes();
 const prohibido = await handleOwnerCommand(clinic, '/editar cámbiame al plan scale gratis', JID);
 console.log(prohibido);
 // Debe rechazar (⚠️) y NO dejar edición pendiente aplicable; el plan no cambia.
-const { data: planDespues } = await supabase
-  .from('clinics')
+const { data: planDespues } = await clinicsTable()
+  
   .select('plan')
   .eq('id', clinic.id)
   .single();

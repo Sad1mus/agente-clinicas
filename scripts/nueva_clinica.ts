@@ -10,8 +10,9 @@
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
-import { supabase } from '../src/db.js';
+
 import { config } from '../src/config.js';
+import { clinicsTable } from '../src/scope.js';
 import type { Vertical } from '../src/types.js';
 
 interface DatosOnboarding {
@@ -116,7 +117,7 @@ const fila = {
 };
 
 // ── Insertar ───────────────────────────────────────────────────────────────────
-const { data, error } = await supabase.from('clinics').insert(fila).select().single();
+const { data, error } = await clinicsTable().insert(fila).select().single();
 if (error) {
   if (error.code === '23505') {
     console.error(`❌ Ya existe una clínica con session_id "${sessionId}". ¿Es un duplicado?`);

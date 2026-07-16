@@ -1,6 +1,7 @@
 import type { Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase, estaPausada } from './db.js';
+import { estaPausada } from './db.js';
+import { clinicsTable, forClinic, type TenantTable } from './scope.js';
 import { notifyHuman } from './notifier.js';
 import { planIncluye } from './plans.js';
 
@@ -24,11 +25,9 @@ interface Stats {
 async function statsRango(clinicId: string, desde: Date, hasta: Date): Promise<Stats> {
   const d = desde.toISOString();
   const h = hasta.toISOString();
-  const conteo = (tabla: string, filtros: Record<string, unknown> = {}) => {
-    let q = supabase
-      .from(tabla)
-      .select('id', { count: 'exact', head: true })
-      .eq('clinic_id', clinicId)
+  const conteo = (tabla: TenantTable, filtros: Record<string, unknown> = {}) => {
+    let q = forClinic(clinicId)
+      .select(tabla, 'id', { count: 'exact', head: true })
       .gte('created_at', d)
       .lt('created_at', h);
     for (const [col, val] of Object.entries(filtros)) q = q.eq(col, val);
@@ -92,8 +91,7 @@ export async function enviarReporteSemanal(clinic: Clinic): Promise<boolean> {
   const texto = await generarReporteSemanal(clinic);
   const enviado = await notifyHuman(clinic, texto);
   if (enviado) {
-    await supabase
-      .from('clinics')
+    await clinicsTable()
       .update({ ultimo_reporte: new Date().toISOString() })
       .eq('id', clinic.id);
   }
@@ -121,8 +119,7 @@ function ahoraEnTZ(): { diaSemana: string; hora: number; fecha: string } {
 
 /** ¿Ya se envió el reporte de esta semana? (mira ultimo_reporte en DB). */
 async function reporteYaEnviado(clinic: Clinic): Promise<boolean> {
-  const { data } = await supabase
-    .from('clinics')
+  const { data } = await clinicsTable()
     .select('ultimo_reporte')
     .eq('id', clinic.id)
     .single();

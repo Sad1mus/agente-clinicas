@@ -1,7 +1,7 @@
 import OpenAI from 'openai';
 import type { Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase } from './db.js';
+import { clinicsTable, forClinic, type TenantTable } from './scope.js';
 import { generarReporteSemanal } from './reports.js';
 import { planIncluye } from './plans.js';
 
@@ -37,11 +37,9 @@ async function statsHoy(clinic: Clinic) {
   }).format(new Date());
 
   const desde = `${hoy}T00:00:00`;
-  const conteo = (tabla: string, filtros: Record<string, unknown> = {}) => {
-    let q = supabase
-      .from(tabla)
-      .select('id', { count: 'exact', head: true })
-      .eq('clinic_id', clinic.id)
+  const conteo = (tabla: TenantTable, filtros: Record<string, unknown> = {}) => {
+    let q = forClinic(clinic.id)
+      .select(tabla, 'id', { count: 'exact', head: true })
       .gte('created_at', desde);
     for (const [col, val] of Object.entries(filtros)) q = q.eq(col, val);
     return q;
@@ -49,10 +47,8 @@ async function statsHoy(clinic: Clinic) {
 
   const [citasAgendadasHoy, citasParaHoy, mensajes, clientes, escalados] = await Promise.all([
     conteo('appointments'),
-    supabase
-      .from('appointments')
-      .select('id', { count: 'exact', head: true })
-      .eq('clinic_id', clinic.id)
+    forClinic(clinic.id)
+      .select('appointments', 'id', { count: 'exact', head: true })
       .eq('fecha', hoy)
       .neq('estado', 'cancelada'),
     conteo('messages', { role: 'user' }),
@@ -219,7 +215,7 @@ Responde SOLO con JSON válido, en uno de estos dos formatos:
 
 /** Aplica un patch confirmado a la clínica en Supabase. */
 async function aplicarPatch(clinic: Clinic, patch: Record<string, unknown>): Promise<boolean> {
-  const { error } = await supabase.from('clinics').update(patch).eq('id', clinic.id);
+  const { error } = await clinicsTable().update(patch).eq('id', clinic.id);
   if (error) {
     console.error('[owner] error aplicando edición:', error);
     return false;
@@ -273,7 +269,7 @@ export async function handleOwnerCommand(
 
   // ── /pausar y /activar: control del asistente ────────────────────────────
   if (['pausar', 'pausa', 'apagar'].includes(cmd)) {
-    const { error } = await supabase.from('clinics').update({ pausado: true }).eq('id', clinic.id);
+    const { error } = await clinicsTable().update({ pausado: true }).eq('id', clinic.id);
     if (error) return '❌ No pude pausar el asistente. Intenta de nuevo.';
     return [
       '⏸️ *Asistente pausado.*',
@@ -285,17 +281,15 @@ export async function handleOwnerCommand(
   }
 
   if (['activar', 'activa', 'encender', 'reactivar'].includes(cmd)) {
-    const { error } = await supabase.from('clinics').update({ pausado: false }).eq('id', clinic.id);
+    const { error } = await clinicsTable().update({ pausado: false }).eq('id', clinic.id);
     if (error) return '❌ No pude reactivar el asistente. Intenta de nuevo.';
     return '▶️ *Asistente activo de nuevo.* Ya está respondiendo a tus clientes 24/7. 💪';
   }
 
   // ── /clientes: últimos contactos con su último mensaje ───────────────────
   if (['clientes', 'contactos', 'ultimos clientes'].includes(cmd)) {
-    const { data: contactos } = await supabase
-      .from('contacts')
-      .select('jid, nombre, created_at')
-      .eq('clinic_id', clinic.id)
+    const { data: contactos } = await forClinic(clinic.id)
+      .select('contacts', 'jid, nombre, created_at')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -305,10 +299,8 @@ export async function handleOwnerCommand(
 
     const lineas: string[] = ['👥 *Últimos clientes:*', ''];
     for (const c of contactos) {
-      const { data: ultimo } = await supabase
-        .from('messages')
-        .select('content, role, created_at')
-        .eq('clinic_id', clinic.id)
+      const { data: ultimo } = await forClinic(clinic.id)
+        .select('messages', 'content, role, created_at')
         .eq('jid', c.jid)
         .order('created_at', { ascending: false })
         .limit(1);

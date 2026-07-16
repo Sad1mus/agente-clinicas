@@ -1,5 +1,6 @@
 import type OpenAI from 'openai';
 import type { Clinic } from './types.js';
+import { forClinic } from './scope.js';
 import { config } from './config.js';
 import {
   getAppointmentsForDate,
@@ -7,7 +8,6 @@ import {
   saveLead,
   getUpcomingAppointment,
   setAppointmentStatus,
-  supabase,
 } from './db.js';
 import { notifyHuman } from './notifier.js';
 
@@ -240,7 +240,7 @@ export async function runTool(
           return JSON.stringify({ ok: false, error: 'Este cliente no tiene citas próximas activas.' });
         }
         const nuevoEstado = accion === 'confirmar' ? 'confirmada' : 'cancelada';
-        await setAppointmentStatus(cita.id, nuevoEstado);
+        await setAppointmentStatus(clinic.id, cita.id, nuevoEstado);
         return JSON.stringify({
           ok: true,
           estado: nuevoEstado,
@@ -261,8 +261,7 @@ export async function runTool(
       }
 
       case 'programar_refuerzo': {
-        const { error } = await supabase.from('ciclos').insert({
-          clinic_id: clinic.id,
+        const { error } = await forClinic(clinic.id).insert('ciclos', {
           jid,
           mascota: input.mascota ? String(input.mascota) : null,
           tipo: String(input.tipo),

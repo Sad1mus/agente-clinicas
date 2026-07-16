@@ -1,6 +1,7 @@
 import type { Appointment, Clinic } from './types.js';
 import { config } from './config.js';
-import { supabase, estaPausada } from './db.js';
+import { estaPausada } from './db.js';
+import { forClinic } from './scope.js';
 import { sendToContact } from './notifier.js';
 import { planIncluye } from './plans.js';
 
@@ -52,10 +53,8 @@ export async function citasPendientesDeResena(clinic: Clinic): Promise<Appointme
   // Prefiltro por fecha (en la TZ de la clínica, con margen) y filtro exacto en código
   // (fecha y hora son columnas separadas en la tabla).
   const fechaDesde = fechaLocalISO(new Date(Date.now() - 30 * 3600 * 1000));
-  const { data, error } = await supabase
-    .from('appointments')
-    .select('*')
-    .eq('clinic_id', clinic.id)
+  const { data, error } = await forClinic(clinic.id)
+    .select('appointments', '*')
     .neq('estado', 'cancelada')
     .is('resena_pedida', null)
     .gte('fecha', fechaDesde)
@@ -85,9 +84,8 @@ export async function revisarResenas(
     const texto = generarMensajeResena(clinic, cita);
     const ok = await enviar(clinic, cita.jid, texto);
     if (ok) {
-      await supabase
-        .from('appointments')
-        .update({ resena_pedida: new Date().toISOString() })
+      await forClinic(clinic.id)
+        .update('appointments', { resena_pedida: new Date().toISOString() })
         .eq('id', cita.id);
       enviadas++;
       console.log(`[reseñas] pedido enviado a ${cita.nombre ?? cita.jid} (${clinic.nombre})`);

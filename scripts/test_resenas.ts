@@ -5,7 +5,8 @@
  *
  *   npx tsx scripts/test_resenas.ts
  */
-import { getActiveClinics, supabase } from '../src/db.js';
+import { getActiveClinics } from '../src/db.js';
+import { forClinic } from '../src/scope.js';
 import { revisarResenas } from '../src/reviews.js';
 
 const clinic = (await getActiveClinics())[0];
@@ -19,9 +20,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const fecha = `${ayer.getFullYear()}-${pad(ayer.getMonth() + 1)}-${pad(ayer.getDate())}`;
 const hora = ayer.toTimeString().slice(0, 8);
 
-const { data: insertada, error } = await supabase
-  .from('appointments')
-  .insert({
+const { data: insertada, error } = await forClinic(clinic.id)
+  .insert('appointments', {
     clinic_id: clinic.id,
     jid: 'test-resena@s.whatsapp.net',
     nombre: 'Cliente De Prueba',
@@ -48,9 +48,8 @@ const enviadas = await revisarResenas(clinic, async (_clinic, jid, texto) => {
 });
 
 // 3. Verificar que la cita quedó marcada.
-const { data: despues } = await supabase
-  .from('appointments')
-  .select('id, resena_pedida')
+const { data: despues } = await forClinic(clinic.id)
+  .select('appointments', 'id, resena_pedida')
   .eq('id', insertada.id)
   .single();
 
@@ -58,10 +57,9 @@ console.log('\n=== DESPUÉS: cita marcada ===');
 console.log({ id: despues?.id, resena_pedida: despues?.resena_pedida });
 
 // 4. Limpiar: borrar la cita simulada.
-await supabase.from('appointments').delete().eq('id', insertada.id);
-const { data: verificarBorrada } = await supabase
-  .from('appointments')
-  .select('id')
+await forClinic(clinic.id).delete('appointments').eq('id', insertada.id);
+const { data: verificarBorrada } = await forClinic(clinic.id)
+  .select('appointments', 'id')
   .eq('id', insertada.id);
 console.log('\n=== LIMPIEZA: cita simulada borrada ===');
 console.log({ filas_restantes: verificarBorrada?.length ?? 0 });
